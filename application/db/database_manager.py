@@ -1,4 +1,5 @@
 import sqlite3
+from typing import List
 
 from application.db.dataaccessobjects.links_dao import LinksDao
 
@@ -11,5 +12,10 @@ class DatabaseManager:
         self.__db = sqlite3.connect(r'application\db\cian.db')  # ссылка на файл бд
         LinksDao.init_table(self.__db)
 
-    def insert_link_into_links(self, id, link):
-        LinksDao.insert(self.__db, id, link)
+    def insert_link_into_links(self, link):
+        """Сохранение ссылки в таблицу links"""
+        LinksDao.insert(self.__db, link)
+
+    def get_links_from_db(self) -> List[str]:
+        """Получение всех ссылок из БД"""
+        return LinksDao.select_all_links(self.__db)
