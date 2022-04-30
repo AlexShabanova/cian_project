@@ -14,7 +14,10 @@ class DatabaseManager:
 
     def insert_link_into_links(self, link):
         """Сохранение ссылки в таблицу links"""
-        LinksDao.insert(self.__db, link)
+        try:
+            LinksDao.insert(self.__db, link)
+        except Exception as err:
+            pass
 
     def get_links_from_db(self) -> List[str]:
         """Получение всех ссылок из БД"""

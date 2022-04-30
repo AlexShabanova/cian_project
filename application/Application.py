@@ -2,6 +2,7 @@ from application.datamodel.data_models import DealType, OfferType, Region, Succe
 from application.db.database_manager import DatabaseManager
 from application.httpclient.httpclient import HttpClient
 from application.parsers.main_page_parser import MainPageParser
+import time
 
 
 class Application:
@@ -34,7 +35,11 @@ class Application:
                 else:
                     for link in links_from_main_page:
                         self.manager.insert_link_into_links(link)
+                    time.sleep(5)
                     page_number += 1
+                if 'captcha' in http_page.data:
+                    time.sleep(300)
+                    last_page = True
             else:
                 break
         print('Закончили получать ссылки с главной страницы')

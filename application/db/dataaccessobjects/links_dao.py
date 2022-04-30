@@ -10,7 +10,7 @@ class LinksDao:
         """Создание таблицы"""
         query = """
         CREATE TABLE IF NOT EXISTS links (
-            link TEXT NOT NULL PRIMARY KEY,
+            link TEXT UNIQUE NOT NULL PRIMARY KEY,
             is_processed INTEGER NOT NULL
         );
         """  # Запрос на создание таблицы
