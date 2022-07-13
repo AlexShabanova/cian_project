@@ -18,10 +18,6 @@ class Region(enum.Enum):
     st_petersburg = 2
 
 
-class Result:
-    pass
-
-
 class Success(Result):
     def __init__(self, data: Any):
         self.data = data
