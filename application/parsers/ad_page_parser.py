@@ -80,14 +80,12 @@ class AdPageParser:
                 '\xa0',
                 ' ')
             try:
-                if sale_type_row == 'свободная продажа':
+                if 'свободная продажа' in sale_type_row:
                     sale_type = 'свободная продажа'
-                elif sale_type_row == 'альтернатива':
+                elif 'альтернатива' in sale_type_row:
                     sale_type = 'альтернатива'
-                elif sale_type_row == 'долевое участие (214-фз)':
+                elif 'долевое участие (214-фз)' in sale_type_row:
                     sale_type = 'долевое участие (214-фз)'
-                elif sale_type_row == 'свободная продажа, возможна ипотека':
-                    sale_type = 'свободная продажа, возможна ипотека'
             except Exception as err:
                 pass
         except Exception as err:
@@ -137,7 +135,7 @@ class AdPageParser:
                               flat_summary_values: List[BeautifulSoup.element.Tag]) -> List[int, float]:
         """Получение краткой информации о квартире (площаль, этажность, год постройки и пр.)"""
         setlocale(LC_NUMERIC, 'ru')
-        area, living_area, kitchen_area, floor, floors, built_date = None, None, None, None, None, None
+        area, living_area, kitchen_area, floor, floors, built_year = None, None, None, None, None, None
         for title_value in zip(flat_summary_names, flat_summary_values):
             if title_value[0].text == 'Общая':
                 area = atof(title_value[1].text.split('\xa0')[0])
@@ -148,10 +146,10 @@ class AdPageParser:
             elif title_value[0].text == 'Этаж':
                 floor, floors = int(title_value[1].text.split(' ')[0]), int(title_value[1].text.split(' ')[-1])
             elif title_value[0].text == 'Построен':
-                built_date = int(title_value[1].text)
+                built_year = int(title_value[1].text)
             elif title_value[0].text == 'Срок сдачи':
-                built_date = int(title_value[1].text.split(' ')[-1])
-        return [area, living_area, kitchen_area, floor, floors, built_date]
+                built_year = int(title_value[1].text.split(' ')[-1])
+        return [area, living_area, kitchen_area, floor, floors, built_year]
 
     def get_district_and_address(self) -> Tuple[str, Any]:
         """Район и полный адрес (для проверки одинаковых объявлений)"""
