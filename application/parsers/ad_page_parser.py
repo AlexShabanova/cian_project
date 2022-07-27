@@ -1,7 +1,8 @@
 from locale import atof, setlocale, LC_NUMERIC
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Union
 
 from bs4 import BeautifulSoup
+from bs4 import Tag
 
 
 class AdPageParser:
@@ -54,23 +55,28 @@ class AdPageParser:
 
     def get_price(self) -> int:
         """Получение цены за квартиру"""
+        price = None
         try:
             price_row = self.soup.find('span', {'itemprop': 'price'}).get('content')[:-2]
             price = int(price_row.replace(' ', ''))
-            return price
         except Exception as err:
             pass
 
+        return price
+
     def get_price_per_meter(self) -> int:
         """Получение цены за квадратный метр"""
+        price_per_meter = None
         try:
             price_per_meter_row = self.soup.find('span', {
                 'class': 'a10a3f92e9--color_gray60_100--MlpSF a10a3f92e9--lineHeight_5u--cJ35s a10a3f92e9--fontWeight_normal--P9Ylg a10a3f92e9--fontSize_14px--TCfeJ a10a3f92e9--display_block--pDAEx a10a3f92e9--text--g9xAG a10a3f92e9--text_letterSpacing__0--mdnqq a10a3f92e9--text_whiteSpace__nowrap--Akbtc'}).text[
                                   :-5]
             price_per_meter = int(price_per_meter_row.replace(' ', ''))
-            return price_per_meter
         except Exception as err:
             pass
+
+        return price_per_meter
+
 
     def get_sale_type(self) -> str:
         """Получение типа продажи: свободная, альтернатива, долевое участие"""
@@ -93,10 +99,13 @@ class AdPageParser:
 
         return sale_type
 
-    def get_mortgage(self, sale_type_row: str) -> bool:
+    def get_mortgage(self) -> bool:
         """Возможность ипотеки/рассрочки"""
         mortgage = False
         try:
+            sale_type_row = self.soup.find('p', {'class': 'a10a3f92e9--description--CPyUa'}).getText().lower().replace(
+                '\xa0',
+                ' ')
             if 'ипотек' in sale_type_row:
                 mortgage = True
         except Exception as err:
@@ -115,7 +124,7 @@ class AdPageParser:
 
         return mortgage
 
-    def get_flat_summary_names(self) -> List[BeautifulSoup.element.Tag]:
+    def get_flat_summary_names(self) -> List[Tag]:
         """Получение заголовков в блоке краткого описания (площаль, этажность, год постройки и пр.)"""
         try:
             return self.soup.find_all('div', {'data-testid': 'object-summary-description-title',
@@ -123,7 +132,7 @@ class AdPageParser:
         except Exception as err:
             return []
 
-    def get_flat_summary_values(self) -> List[BeautifulSoup.element.Tag]:
+    def get_flat_summary_values(self) -> List[Tag]:
         """Получение значений для заголовков в блоке краткого описания (площаль, этажность, год постройки и пр.)"""
         try:
             return self.soup.find_all('div', {'data-testid': 'object-summary-description-value',
@@ -131,8 +140,8 @@ class AdPageParser:
         except Exception as err:
             return []
 
-    def get_flat_summary_info(self, flat_summary_names: List[BeautifulSoup.element.Tag],
-                              flat_summary_values: List[BeautifulSoup.element.Tag]) -> List[int, float]:
+    def get_flat_summary_info(self, flat_summary_names: List[Tag],
+                              flat_summary_values: List[Tag]) -> List[Union[int, float]]:
         """Получение краткой информации о квартире (площаль, этажность, год постройки и пр.)"""
         setlocale(LC_NUMERIC, 'ru')
         area, living_area, kitchen_area, floor, floors, built_year = None, None, None, None, None, None
@@ -151,23 +160,28 @@ class AdPageParser:
                 built_year = int(title_value[1].text.split(' ')[-1])
         return [area, living_area, kitchen_area, floor, floors, built_year]
 
-    def get_district_and_address(self) -> Tuple[str, Any]:
+    def get_address_and_district(self) -> Tuple[str, Any]:
         """Район и полный адрес (для проверки одинаковых объявлений)"""
+        address, district = None, None
         try:
             address_list = self.soup.find_all('a', {'data-name': 'Link',
                                                     'class': 'a10a3f92e9--link--ulbh5 a10a3f92e9--address-item--ScpSN'})
             address = ','.join(elem.text for elem in address_list)
             district = address_list[1].text
-            return address, district
         except Exception as err:
             pass
 
+        return address, district
+
+
     def get_metro_station(self) -> str:
         """Ближайшая станция метро"""
+        metro_station = None
         try:
-            return self.soup.find('a', {'class': 'a10a3f92e9--underground_link--Sxo7K'}).text
+            metro_station = self.soup.find('a', {'class': 'a10a3f92e9--underground_link--Sxo7K'}).text
         except Exception as err:
             pass
+        return metro_station
 
     def get_seller(self) -> str:
         seller = 'не указано'
@@ -211,7 +225,7 @@ class AdPageParser:
 
         return seller
 
-    def get_flat_general_info_names(self) -> List[BeautifulSoup.element.Tag]:
+    def get_flat_general_info_names(self) -> List[Tag]:
         """Получение заголовков блока общей информации о квартире (тип жилья, высота потолков, санузел и пр.)"""
         try:
             return self.soup.find('ul', {'class': 'a10a3f92e9--list--jHl8z'}).find_all('span', {
@@ -219,7 +233,7 @@ class AdPageParser:
         except Exception as err:
             return []
 
-    def get_flat_general_info_values(self) -> List[BeautifulSoup.element.Tag]:
+    def get_flat_general_info_values(self) -> List[Tag]:
         """Получение значений для заголовков блока общей информации о квартире (тип жилья, высота потолков, санузел и пр.)"""
         try:
             return self.soup.find('ul', {'class': 'a10a3f92e9--list--jHl8z'}).find_all('span', {
@@ -227,13 +241,15 @@ class AdPageParser:
         except Exception as err:
             return []
 
-    def get_flat_general_info(self, flat_general_info_names: List[BeautifulSoup.element.Tag],
-                              flat_general_info_values: List[BeautifulSoup.element.Tag]) -> List[str, float]:
+    def get_flat_general_info(self, flat_general_info_names: List[Tag],
+                              flat_general_info_values: List[Tag]) -> List[Union[str, float]]:
         """Получение общей информации о квартире (Тип жилья, Планировка, Высота потолков,
          Санузел, Балкон/лоджия, Ремонт, Вид из окон, Отделка)"""
-        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = None, None, None, None, None, None, None, None
+        built_year, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = None, None, None, None, None, None, None, None, None
 
         for name_value in zip(flat_general_info_names, flat_general_info_values):
+            if name_value[0].text == 'Год постройки':
+                built_year = int(name_value[1].text)
             if name_value[0].text == 'Тип жилья':
                 if 'Вторичка' in name_value[1].text:
                     housing_type = 'вторичное'
@@ -277,7 +293,7 @@ class AdPageParser:
                     view = 'предчистовая'
                 elif 'Нет' in name_value[1].text:
                     view = 'нет'
-        return [housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
+        return [built_year, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                 finished_shell_condition]
 
     def get_house_info_names_values(self) -> Dict[str, str]:
@@ -314,7 +330,7 @@ class AdPageParser:
 
         return names_values_dict
 
-    def get_house_info(self, names_values_dict: Dict[str, str]) -> List[str, int]:
+    def get_house_info(self, names_values_dict: Dict[str, str]) -> List[Union[str, int]]:
         """Получение информации о доме"""
         house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply = \
             None, None, None, None, None, None, None, None, None, None, None, None

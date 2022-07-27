@@ -24,14 +24,14 @@ class LinksDao:
         """Заполнение таблицы"""
         query = f"INSERT INTO links (link, is_processed)  VALUES ('{link}', 0);"  # Запрос на заполнение таблицы
         cursor = db.cursor()
-        cursor.execute(query)
+        cursor.execute(query) #  sqlite3.IntegrityError: UNIQUE constraint failed: links.link при повторной ссылке
         db.commit()
         cursor.close()
 
     @staticmethod
     def set_link_processed(db: Connection, link):
         """Обновление is_processed = true когда скачаны данные по объявлению"""
-        query = f"UPDATE links SET is_processed = 1 WHERE link = {link} "
+        query = f"UPDATE links SET is_processed = 1 WHERE link = '{link}'"
         cursor = db.cursor()
         cursor.execute(query)
         db.commit()
