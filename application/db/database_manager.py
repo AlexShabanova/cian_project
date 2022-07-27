@@ -28,15 +28,15 @@ class DatabaseManager:
 
     def insert_ad_data(self, link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
                        living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
-                       built_year_again, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
-                       finished_shell_condition, house_type, house_class, building_number, parking, elevators,
+                       housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
+                       finished_shell_condition, built_year_again, house_type, house_class, building_number, parking, elevators,
                        housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
                        description_text):
         """Сохранение данных одного объявления"""
         AdDataDao.insert_ad_data(self.__db, link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
                        living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
-                       built_year_again, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
-                       finished_shell_condition, house_type, house_class, building_number, parking, elevators,
+                       housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
+                       finished_shell_condition, built_year_again, house_type, house_class, building_number, parking, elevators,
                        housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
                        description_text)
 

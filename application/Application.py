@@ -51,9 +51,9 @@ class Application:
                 print(f"Текущая ссылка: {link}, {i + 1} из {links_len}")
                 page_source = self.http_client.get_page_source(link)
                 ad_parser = AdPageParser(page_source)
-                ad_title = ad_parser.get_title()
-                flat_type = ad_parser.get_flat_type(ad_title)
-                rooms = ad_parser.get_number_of_rooms(ad_title)
+                titles = ad_parser.get_titles()
+                flat_type = ad_parser.get_flat_type(titles)
+                rooms = ad_parser.get_number_of_rooms(titles)
                 price = ad_parser.get_price()
                 price_per_meter = ad_parser.get_price_per_meter()
                 sale_type = ad_parser.get_sale_type()
@@ -65,19 +65,21 @@ class Application:
                 address, district = ad_parser.get_address_and_district()
                 metro_station = ad_parser.get_metro_station()
                 seller = ad_parser.get_seller()
-                flat_general_info_names = ad_parser.get_flat_general_info_names()
-                flat_general_info_values = ad_parser.get_flat_summary_values()
-                built_year_again, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = ad_parser.get_flat_general_info(
-                    flat_general_info_names, flat_general_info_values)
+                flat_general_info_names_values = ad_parser.get_flat_general_info_names_values()
+                housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = ad_parser.get_flat_general_info(
+                    flat_general_info_names_values)
                 house_info_names_values = ad_parser.get_house_info_names_values()
-                house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply = ad_parser.get_house_info(
+                built_year_again, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply = ad_parser.get_house_info(
                     house_info_names_values)
                 description_text = ad_parser.get_description_text()
-                self.database_manager.insert_ad_data(link, flat_type, rooms, price, price_per_meter, sale_type, mortgage,
-                                                     area, living_area, kitchen_area, floor, floors, built_year, address,
-                                                     district, metro_station, seller, built_year_again, housing_type, planning,
+                self.database_manager.insert_ad_data(link, flat_type, rooms, price, price_per_meter, sale_type,
+                                                     mortgage,
+                                                     area, living_area, kitchen_area, floor, floors, built_year,
+                                                     address,
+                                                     district, metro_station, seller, housing_type,
+                                                     planning,
                                                      ceiling_height, bathroom, balcony_loggia,
-                                                     repair, view, finished_shell_condition, house_type, house_class,
+                                                     repair, view, finished_shell_condition, built_year_again, house_type, house_class,
                                                      building_number,
                                                      parking, elevators, housing_line, floor_type, entrance_number, heating,
                                                      unsafe_house,
