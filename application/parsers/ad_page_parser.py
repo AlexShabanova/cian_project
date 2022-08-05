@@ -286,13 +286,13 @@ class AdPageParser:
                     view = 'на улицу и двор'
             elif name == 'Отделка':
                 if 'Черновая' in value:
-                    view = 'черновая'
+                    finished_shell_condition = 'черновая'
                 elif 'Чистовая' in value:
-                    view = 'чистовая'
+                    finished_shell_condition = 'чистовая'
                 elif 'Предчистовая' in value:
-                    view = 'предчистовая'
+                    finished_shell_condition = 'предчистовая'
                 elif 'Нет' in value:
-                    view = 'нет'
+                    finished_shell_condition = 'нет'
         return [housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                 finished_shell_condition]
 

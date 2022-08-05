@@ -3,3 +3,9 @@ fake-useragent
 lxml
 requests
 selenium
+pandas
+numpy
+matplotlib
+seaborn
+sklearn
+missingno
