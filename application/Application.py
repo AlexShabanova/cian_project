@@ -1,4 +1,5 @@
 import random
+import time
 
 from application.datamodel.data_models import DealType, OfferType, Region
 from application.db.database_manager import DatabaseManager
@@ -22,17 +23,22 @@ class Application:
         page_number = 1
         last_page = False
         while last_page is False:
-            print(f"Текущий номер страницы: {page_number}")
             link = f"https://www.cian.ru/cat.php?deal_type={self.deal_type.value}&engine_version=2&offer_type={self.offer_type.value}&p={page_number}&region={self.region.value}"
-            print(link)
             page_source = self.http_client.get_page_source(link)
 
-            # while 'captcha' in page_source:
-            #     time.sleep(30)
+            while 'captcha' in page_source:
+                print("captcha")
+                time.sleep(30)
 
             links_from_page = MainPageParser.parse_links_from_main_page(page_source)
-            print(f"Ссылки со страницы: {links_from_page}")
             links_from_db = self.database_manager.get_links_from_db()
+            print(
+                f"страница = {page_number}, количество ссылок на странице = {len(links_from_page)}, в БД = {len(links_from_db)}")
+
+            while len(links_from_page) == 0:
+                print("0 ссылок")
+                time.sleep(30)
+
             check = all(link in links_from_db for link in links_from_page)
             if check is True:
                 last_page = True
@@ -57,42 +63,62 @@ class Application:
                 flat_type = ad_parser.get_flat_type(titles)
                 rooms = ad_parser.get_number_of_rooms(titles)
                 price = ad_parser.get_price()
-                price_per_meter = ad_parser.get_price_per_meter()
                 sale_type = ad_parser.get_sale_type()
                 mortgage = ad_parser.get_mortgage()
                 flat_summary_names = ad_parser.get_flat_summary_names()
                 flat_summary_values = ad_parser.get_flat_summary_values()
-                area, living_area, kitchen_area, floor, floors, built_year = ad_parser.get_flat_summary_info(
+                flat_summary_info = ad_parser.get_flat_summary_info(
                     flat_summary_names, flat_summary_values)
-                address, district = ad_parser.get_address_and_district()
+                address_and_district = ad_parser.get_address_and_district()
                 metro_station = ad_parser.get_metro_station()
                 seller = ad_parser.get_seller()
                 flat_general_info_names_values = ad_parser.get_flat_general_info_names_values()
-                slovar = ad_parser.get_flat_general_info(flat_general_info_names_values)
-                housing_type = slovar['']
-                housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = ad_parser.get_flat_general_info(
+                flat_general_info = ad_parser.get_flat_general_info(
                     flat_general_info_names_values)
                 house_info_names_values = ad_parser.get_house_info_names_values()
-                built_year_again, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply = ad_parser.get_house_info(
-                    house_info_names_values)
+                house_info = ad_parser.get_house_info(house_info_names_values)
+
                 description_text = ad_parser.get_description_text()
-                self.database_manager.insert_ad_data(link, flat_type, rooms, price, price_per_meter, sale_type,
-                                                     mortgage,
-                                                     area, living_area, kitchen_area, floor, floors, built_year,
-                                                     address,
-                                                     district, metro_station, seller, housing_type,
-                                                     planning,
-                                                     ceiling_height, bathroom, balcony_loggia,
-                                                     repair, view, finished_shell_condition, built_year_again,
-                                                     house_type, house_class,
-                                                     building_number,
-                                                     parking, elevators, housing_line, floor_type, entrance_number,
-                                                     heating,
-                                                     unsafe_house,
-                                                     garbage_disposal, gas_supply, description_text)
+
+                build_year_resolved = None
+                if flat_summary_info.built_year is not None:
+                    build_year_resolved = flat_summary_info.built_year
+                else:
+                    build_year_resolved = house_info.built_year
+
+                self.database_manager.insert_ad_data(link=link, flat_type=flat_type, rooms=rooms, price=price,
+                                                     sale_type=sale_type,
+                                                     mortgage=mortgage,
+                                                     area=flat_summary_info.area,
+                                                     living_area=flat_summary_info.living_area,
+                                                     kitchen_area=flat_summary_info.kitchen_area,
+                                                     floor=flat_summary_info.floor,
+                                                     floors=flat_summary_info.floors, build_year=build_year_resolved,
+                                                     address=address_and_district.address,
+                                                     district=address_and_district.district,
+                                                     metro_station=metro_station, seller=seller,
+                                                     housing_type=flat_general_info.housing_type,
+                                                     planning=flat_general_info.planning,
+                                                     ceiling_height=flat_general_info.ceiling_height,
+                                                     bathroom=flat_general_info.bathroom,
+                                                     balcony_loggia=flat_general_info.balcony_loggia,
+                                                     repair=flat_general_info.repair, view=flat_general_info.view,
+                                                     finished_shell_condition=flat_general_info.finished_shell_condition,
+                                                     house_type=house_info.house_type,
+                                                     house_class=house_info.house_class,
+                                                     building_number=house_info.building_number,
+                                                     parking=house_info.parking, elevators=house_info.elevators,
+                                                     housing_line=house_info.housing_line,
+                                                     floor_type=house_info.floor_type,
+                                                     entrance_number=house_info.entrance_number,
+                                                     heating=house_info.heating,
+                                                     unsafe_house=house_info.unsafe_house,
+                                                     garbage_disposal=house_info.garbage_disposal,
+                                                     gas_supply=house_info.gas_supply,
+                                                     description_text=description_text)
                 self.database_manager.set_link_processed(link)
             except Exception as err:
-                print(err)
+                print(f"Ошибка в get_ad_data_from_all_links(), {err}")
         print("Все ссылки обработаны")
 
     def generate_fake_ad_data(self, n):
