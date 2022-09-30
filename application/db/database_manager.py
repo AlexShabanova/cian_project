@@ -26,19 +26,19 @@ class DatabaseManager:
         """Получение всех ссылок из БД"""
         return LinksDao.select_all_links(self.__db)
 
-    def insert_ad_data(self, link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
-                       living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
+    def insert_ad_data(self, link, flat_type, rooms, price, sale_type, mortgage, area,
+                       living_area, kitchen_area, floor, floors, build_year, address, district, metro_station, seller,
                        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                        finished_shell_condition, house_type, house_class, building_number, parking, elevators,
                        housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
                        description_text):
         """Сохранение данных одного объявления"""
-        AdDataDao.insert_ad_data(self.__db, link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
-                       living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
-                       housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
-                       finished_shell_condition, house_type, house_class, building_number, parking, elevators,
-                       housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
-                       description_text)
+        AdDataDao.insert_ad_data(self.__db, link, flat_type, rooms, price, sale_type, mortgage, area,
+                                 living_area, kitchen_area, floor, floors, build_year, address, district, metro_station, seller,
+                                 housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
+                                 finished_shell_condition, house_type, house_class, building_number, parking, elevators,
+                                 housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
+                                 description_text)
 
     def update_incorrect_columns(self):
         AdDataDao.change_column_values(self.__db)

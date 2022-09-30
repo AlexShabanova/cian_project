@@ -1,8 +1,13 @@
 from locale import atof, setlocale, LC_NUMERIC
-from typing import List, Tuple, Any, Dict, Union
+from typing import List, Tuple, Any, Dict
 
 from bs4 import BeautifulSoup
 from bs4 import Tag
+
+from application.parsers.models.AddressAndDistrict import AddressAndDistrict
+from application.parsers.models.FlatGeneralInfo import FlatGeneralInfo
+from application.parsers.models.FlatSummaryInfo import FlatSummaryInfo
+from application.parsers.models.HouseInfo import HouseInfo
 
 
 class AdPageParser:
@@ -64,19 +69,6 @@ class AdPageParser:
             pass
 
         return price
-
-    def get_price_per_meter(self) -> int:
-        """Получение цены за квадратный метр"""
-        price_per_meter = None
-        try:
-            price_per_meter_row = self.soup.find('span', {
-                'class': 'a10a3f92e9--color_gray60_100--MlpSF a10a3f92e9--lineHeight_5u--cJ35s a10a3f92e9--fontWeight_normal--P9Ylg a10a3f92e9--fontSize_14px--TCfeJ a10a3f92e9--display_block--pDAEx a10a3f92e9--text--g9xAG a10a3f92e9--text_letterSpacing__0--mdnqq a10a3f92e9--text_whiteSpace__nowrap--Akbtc'}).text[
-                                  :-5]
-            price_per_meter = int(price_per_meter_row.replace(' ', ''))
-        except Exception as err:
-            pass
-
-        return price_per_meter
 
 
     def get_sale_type(self) -> str:
@@ -142,37 +134,40 @@ class AdPageParser:
             return []
 
     def get_flat_summary_info(self, flat_summary_names: List[Tag],
-                              flat_summary_values: List[Tag]) -> List[Union[int, float]]:
+                              flat_summary_values: List[Tag]) -> FlatSummaryInfo:
         """Получение краткой информации о квартире (площаль, этажность, год постройки и пр.)"""
         setlocale(LC_NUMERIC, 'ru')
-        area, living_area, kitchen_area, floor, floors, built_year = None, None, None, None, None, None
+        result = FlatSummaryInfo()
         for title_value in zip(flat_summary_names, flat_summary_values):
             if title_value[0].text == 'Общая':
-                area = atof(title_value[1].text.split('\xa0')[0])
+                result.area = atof(title_value[1].text.split('\xa0')[0])
             elif title_value[0].text == 'Жилая':
-                living_area = atof(title_value[1].text.split('\xa0')[0])
+                result.living_area = atof(title_value[1].text.split('\xa0')[0])
             elif title_value[0].text == 'Кухня':
-                kitchen_area = atof(title_value[1].text.split('\xa0')[0])
+                result.kitchen_area = atof(title_value[1].text.split('\xa0')[0])
             elif title_value[0].text == 'Этаж':
-                floor, floors = int(title_value[1].text.split(' ')[0]), int(title_value[1].text.split(' ')[-1])
+                result.floor = int(title_value[1].text.split(' ')[0])
+                result.floors = int(title_value[1].text.split(' ')[-1])
             elif title_value[0].text == 'Построен':
-                built_year = int(title_value[1].text)
+                result.built_year = int(title_value[1].text)
             elif title_value[0].text == 'Срок сдачи':
-                built_year = int(title_value[1].text.split(' ')[-1])
-        return [area, living_area, kitchen_area, floor, floors, built_year]
+                result.built_year = int(title_value[1].text.split(' ')[-1])
+            elif title_value[0].text == 'Сдан':
+                result.built_year = int(title_value[1].text.split(' ')[-1])
+        return result
 
-    def get_address_and_district(self) -> Tuple[str, Any]:
+    def get_address_and_district(self) -> AddressAndDistrict:
         """Район и полный адрес (для проверки одинаковых объявлений)"""
-        address, district = None, None
+        result = AddressAndDistrict()
         try:
             address_list = self.soup.find_all('a', {'data-name': 'Link',
                                                     'class': 'a10a3f92e9--link--ulbh5 a10a3f92e9--address-item--ScpSN'})
-            address = ','.join(elem.text for elem in address_list)
-            district = address_list[1].text
+            result.address = ','.join(elem.text for elem in address_list)
+            result.district = address_list[1].text
         except Exception as err:
             pass
 
-        return address, district
+        return result
 
 
     def get_metro_station(self) -> str:
@@ -244,57 +239,56 @@ class AdPageParser:
             pass
         return names_values_dict
 
-    def get_flat_general_info(self, names_values_dict: Dict[str, str]) -> List[Union[str, float]]:
+    def get_flat_general_info(self, names_values_dict: Dict[str, str]) -> FlatGeneralInfo:
         """Получение общей информации о квартире (Тип жилья, Планировка, Высота потолков,
          Санузел, Балкон/лоджия, Ремонт, Вид из окон, Отделка)"""
-        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition = None, None, None, None, None, None, None, None
+        result = FlatGeneralInfo()
 
         for name, value in names_values_dict.items():
             if name == 'Тип жилья':
                 if 'Вторичка' in value:
-                    housing_type = 'вторичное'
+                    result.housing_type = 'вторичное'
                 elif 'Новостройка' in value:
-                    housing_type = 'новостройка'
+                    result.housing_type = 'новостройка'
             elif name == 'Планировка':
                 if 'Изолированная' in value:
-                    planning = 'изолированная'
+                    result.planning = 'изолированная'
                 elif 'Смежная' in value:
-                    planning = 'смежная'
+                    result.planning = 'смежная'
                 elif 'Смежно-изолированная' in value:
-                    planning = 'смежно-изолированная'
+                    result.planning = 'смежно-изолированная'
             elif name == 'Высота потолков':
-                ceiling_height = atof(value.split(' ')[0])
+                result.ceiling_height = atof(value.split(' ')[0])
             elif name == 'Санузел':
-                bathroom = value
+                result.bathroom = value
             elif name == 'Балкон/лоджия':
-                balcony_loggia = value
+                result.balcony_loggia = value
             elif name == 'Ремонт':
                 if 'Без ремонта' in value:
-                    repair = 'без ремонта'
+                    result.repair = 'без ремонта'
                 elif 'Евроремонт' in value:
-                    repair = 'евроремонт'
+                    result.repair = 'евроремонт'
                 elif 'Косметический' in value:
-                    repair = 'косметический'
+                    result.repair = 'косметический'
                 elif 'Дизайнерский' in value:
-                    repair = 'дизайнерский'
+                    result.repair = 'дизайнерский'
             elif name == 'Вид из окон':
                 if 'Во двор' in value:
-                    view = 'во двор'
+                    result.view = 'во двор'
                 elif 'На улицу' in value:
-                    view = 'на улицу'
+                    result.view = 'на улицу'
                 elif 'На улицу и двор' in value:
-                    view = 'на улицу и двор'
+                    result.view = 'на улицу и двор'
             elif name == 'Отделка':
                 if 'Черновая' in value:
-                    finished_shell_condition = 'черновая'
+                    result.finished_shell_condition = 'черновая'
                 elif 'Чистовая' in value:
-                    finished_shell_condition = 'чистовая'
+                    result.finished_shell_condition = 'чистовая'
                 elif 'Предчистовая' in value:
-                    finished_shell_condition = 'предчистовая'
+                    result.finished_shell_condition = 'предчистовая'
                 elif 'Нет' in value:
-                    finished_shell_condition = 'нет'
-        return [housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
-                finished_shell_condition]
+                    result.finished_shell_condition = 'нет'
+        return result
 
     def get_house_info_names_values(self) -> Dict[str, str]:
         """Получение заголовков и значений блока информации о доме"""
@@ -330,39 +324,37 @@ class AdPageParser:
 
         return names_values_dict
 
-    def get_house_info(self, names_values_dict: Dict[str, str]) -> List[Union[str, int]]:
+    def get_house_info(self, names_values_dict: Dict[str, str]) -> HouseInfo:
         """Получение информации о доме"""
-        built_year, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply = \
-            None, None, None, None, None, None, None, None, None, None, None, None, None
+        result = HouseInfo()
         for name, value in names_values_dict.items():
             if name == 'Год постройки':
-                built_year = int(value)
+                result.built_year = int(value)
             if name == 'Тип дома':
-                house_type = value.lower()
+                result.house_type = value.lower()
             elif name == 'Класс':
-                house_class = value.lower()
+                result.house_class = value.lower()
             elif name == 'Кол-во корпусов':
-                building_number = int(value.split(' ')[0])
+                result.building_number = int(value.split(' ')[0])
             elif name == 'Парковка':
-                parking = value.lower()
+                result.parking = value.lower()
             elif name == 'Лифты':
-                elevators = value.lower()
+                result.elevators = value.lower()
             elif name == 'Строительная серия':
-                housing_line = value.lower()
+                result.housing_line = value.lower()
             elif name == 'Тип перекрытий':
-                floor_type = value.lower()
+                result.floor_type = value.lower()
             elif name == 'Подъезды':
-                entrance_number = int(value)
+                result.entrance_number = int(value)
             elif name == 'Отопление':
-                heating = value.lower()
+                result.heating = value.lower()
             elif name == 'Аварийность':
-                unsafe_house = value.lower()
+                result.unsafe_house = value.lower()
             elif name == 'Мусоропровод':
-                garbage_disposal = value.lower()
+                result.garbage_disposal = value.lower()
             elif name == 'Газоснабжение':
-                gas_supply = value.lower()
-        return [built_year, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number,
-                heating, unsafe_house, garbage_disposal, gas_supply]
+                result.gas_supply = value.lower()
+        return result
 
     def get_description_text(self) -> str:
         """Получение текста объявления"""

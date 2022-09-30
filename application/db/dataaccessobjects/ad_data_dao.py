@@ -13,7 +13,6 @@ class AdDataDao:
             flat_type TEXT,
             rooms INTEGER,
             price INTEGER,
-            price_per_meter INTEGER,
             sale_type TEXT,
             mortgage INTEGER,
             area REAL,
@@ -55,7 +54,7 @@ class AdDataDao:
         cursor.close()
 
     @staticmethod
-    def insert_ad_data(db: Connection, link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
+    def insert_ad_data(db: Connection, link, flat_type, rooms, price, sale_type, mortgage, area,
                        living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
                        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                        finished_shell_condition, house_type, house_class, building_number, parking, elevators,
@@ -63,7 +62,7 @@ class AdDataDao:
                        description_text):
         """Заполнение таблицы"""
         cursor = db.cursor()
-        cursor.execute("""INSERT INTO ad_data (link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text))
+        cursor.execute("""INSERT INTO ad_data (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text))
         db.commit()
         cursor.close()
 
