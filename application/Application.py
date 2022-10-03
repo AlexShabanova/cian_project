@@ -1,7 +1,7 @@
 import random
 import time
 
-from application.datamodel.data_models import DealType, OfferType, Region
+from application.datamodel.data_models import DealType, OfferType, Region, ObjectType, RoomType
 from application.db.database_manager import DatabaseManager
 from application.httpclient.httpclient import HttpClient
 from application.parsers.ad_page_parser import AdPageParser
@@ -10,10 +10,26 @@ from application.parsers.main_page_parser import MainPageParser
 
 class Application:
 
-    def __init__(self, deal_type: DealType, offer_type: OfferType, region: Region):
+    def __init__(
+            self,
+            deal_type: DealType,
+            offer_type: OfferType,
+            region: Region,
+            object_type: ObjectType,
+            room: RoomType,
+            minprice: int,
+            maxprice: int,
+    ):
+        # Parameters for main page link generation
         self.deal_type = deal_type
         self.offer_type = offer_type
         self.region = region
+        self.room = room
+        self.minprice = minprice
+        self.maxprice = maxprice
+        self.object_type = object_type
+
+        # Instances for db and network interaction
         self.database_manager = DatabaseManager()
         self.http_client = HttpClient()
 
@@ -23,21 +39,28 @@ class Application:
         page_number = 1
         last_page = False
         while last_page is False:
-            link = f"https://www.cian.ru/cat.php?deal_type={self.deal_type.value}&engine_version=2&offer_type={self.offer_type.value}&p={page_number}&region={self.region.value}"
+            link = f"https://www.cian.ru/cat.php?deal_type={self.deal_type.value}" \
+                   f"&engine_version=2&offer_type={self.offer_type.value}" \
+                   f"&p={page_number}" \
+                   f"&region={self.region.value}" \
+                   f"&room{self.room.value}=1" \
+                   f"&object_type%5B0%5D={self.object_type.value}" \
+                   f"&minprice={self.minprice}" \
+                   f"&maxprice={self.maxprice}"
             page_source = self.http_client.get_page_source(link)
+
+            if 'По такому запросу объявления еще не разместили' in page_source:
+                print("С такими параметрами ничего не нашлось")
+                break
 
             while 'captcha' in page_source:
                 print("captcha")
                 time.sleep(30)
+                page_source = self.http_client.get_page_source(link)
 
             links_from_page = MainPageParser.parse_links_from_main_page(page_source)
             links_from_db = self.database_manager.get_links_from_db()
-            print(
-                f"страница = {page_number}, количество ссылок на странице = {len(links_from_page)}, в БД = {len(links_from_db)}")
-
-            while len(links_from_page) == 0:
-                print("0 ссылок")
-                time.sleep(30)
+            print(f"страница = {page_number}, количество ссылок на странице = {len(links_from_page)}, в БД = {len(links_from_db)}")
 
             check = all(link in links_from_db for link in links_from_page)
             if check is True:
@@ -48,7 +71,7 @@ class Application:
                         self.database_manager.insert_link_into_links(link)
                 page_number += 1
 
-        print('Закончили получать ссылки со страниц')
+        print('Закончили получать ссылки по текущему фильтру')
 
     def get_ad_data_from_all_links(self):
         """Получение данных со страницы объявления"""
@@ -198,7 +221,6 @@ class Application:
             view = random.choice(['во двор', 'на улицу', 'на улицу и двор', None])
             finished_shell_condition = random.choice(['черновая', 'чистовая', 'предчистовая', 'нет', None])
 
-
             house_type = random.choice(['монолитный', 'панельный', None])
             house_class = random.choice(['премиум', 'бизнес', None])
             building_number = random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, None])
@@ -214,12 +236,17 @@ class Application:
 
             description_text = f"description text '{i}'"
 
-            self.database_manager.insert_ad_data(link, flat_type, rooms, price, price_per_meter, sale_type, mortgage, area,
-                       living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller,
-                       housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
-                       finished_shell_condition, house_type, house_class, building_number, parking, elevators,
-                       housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
-                       description_text)
+            self.database_manager.insert_ad_data(link, flat_type, rooms, price, price_per_meter, sale_type, mortgage,
+                                                 area,
+                                                 living_area, kitchen_area, floor, floors, built_year, address,
+                                                 district, metro_station, seller,
+                                                 housing_type, planning, ceiling_height, bathroom, balcony_loggia,
+                                                 repair, view,
+                                                 finished_shell_condition, house_type, house_class, building_number,
+                                                 parking, elevators,
+                                                 housing_line, floor_type, entrance_number, heating, unsafe_house,
+                                                 garbage_disposal, gas_supply,
+                                                 description_text)
 
             print(f"Сгенерированно '{i + 1}'/'{n}'")
 
