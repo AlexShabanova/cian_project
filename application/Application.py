@@ -12,6 +12,7 @@ class Application:
 
     def __init__(
             self,
+            db_manager: DatabaseManager,
             deal_type: DealType,
             offer_type: OfferType,
             region: Region,
@@ -30,7 +31,7 @@ class Application:
         self.object_type = object_type
 
         # Instances for db and network interaction
-        self.database_manager = DatabaseManager()
+        self.database_manager = db_manager
         self.http_client = HttpClient()
 
     def get_links_from_page(self):
@@ -46,7 +47,8 @@ class Application:
                    f"&room{self.room.value}=1" \
                    f"&object_type%5B0%5D={self.object_type.value}" \
                    f"&minprice={self.minprice}" \
-                   f"&maxprice={self.maxprice}"
+                   f"&maxprice={self.maxprice}" \
+                   # f"&sort=creation_date_desc"  # сортировка объявлений "сначала новые"
             page_source = self.http_client.get_page_source(link)
 
             if 'По такому запросу объявления еще не разместили' in page_source:
@@ -70,8 +72,6 @@ class Application:
                     if link not in links_from_db:
                         self.database_manager.insert_link_into_links(link)
                 page_number += 1
-
-        print('Закончили получать ссылки по текущему фильтру')
 
     def get_ad_data_from_all_links(self):
         """Получение данных со страницы объявления"""
