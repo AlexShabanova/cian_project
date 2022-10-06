@@ -27,5 +27,5 @@ class HttpClient:
             time.sleep(5)
             print("Не загрузилась страница")
             self._driver.get(link)
-        time.sleep(5)
+        time.sleep(4)
         return self._driver.page_source
