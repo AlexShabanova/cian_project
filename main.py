@@ -20,17 +20,17 @@ if __name__ == '__main__':
     ]
     all_parameters = list(product(*variants))
 
-    # Для пропуска заведому пустых страниц
+    # Для пропуска заведомо пустых страниц
     # test = []
     # for index, filter in enumerate(all_parameters):
     #     object_type = filter[0]
     #     room_type = filter[1]
     #     min_price = filter[2][0]
     #     max_price = filter[2][1]
-    #     if object_type == ObjectType.new_build and room_type == RoomType.room1 and min_price > 235000001:
+    #     if object_type == ObjectType.new_build and room_type == RoomType.room2 and min_price >= 132_000_001:
     #         test.append(filter)
     #         print(index)
-    #         db_manager.insert_processed_filter(index)
+    #         # db_manager.insert_processed_filter(index)
 
     app: Application
     for filter_index, parameters in enumerate(all_parameters):
