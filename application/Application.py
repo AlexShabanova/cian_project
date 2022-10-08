@@ -57,6 +57,7 @@ class Application:
 
             while 'captcha' in page_source:
                 print("captcha")
+                # os.system("shutdown /s /t 0")
                 time.sleep(30)
                 page_source = self.http_client.get_page_source(link)
 

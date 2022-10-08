@@ -20,14 +20,14 @@ if __name__ == '__main__':
     ]
     all_parameters = list(product(*variants))
 
-    # # Для пропуска заведомо пустых страниц
+    # Для пропуска заведомо пустых страниц
     # test = []
     # for index, filter in enumerate(all_parameters):
     #     object_type = filter[0]
     #     room_type = filter[1]
     #     min_price = filter[2][0]
     #     max_price = filter[2][1]
-    #     if object_type == ObjectType.new_build and room_type == RoomType.room6 and min_price >= 1_000_001:
+    #     if object_type == ObjectType.secondary_build and room_type == RoomType.room2 and min_price >= 47_000_001:
     #         test.append(filter)
     #         print(index)
     #         db_manager.insert_processed_filter(index)
@@ -36,9 +36,9 @@ if __name__ == '__main__':
     #     db_manager=db_manager,
     #     offer_type=OfferType.flat,
     #     region=Region.moscow,
-    #     object_type=ObjectType.new_build,
-    #     room=RoomType.room6,
-    #     minprice= 1_000_001,
+    #     object_type=ObjectType.secondary_build,
+    #     room=RoomType.room2,
+    #     minprice=47_000_001,
     #     maxprice=1_000_000_000
     # )
     # app.get_links_from_page()
@@ -64,6 +64,8 @@ if __name__ == '__main__':
         app.get_links_from_page()
         db_manager.insert_processed_filter(filter_index)
         print(f'Закончили получать ссылки по фильтру №{filter_index}: {parameters}')
+
     # app.get_ad_data_from_all_links()
+    # app.generate_fake_ad_data(10_000)
     # app.generate_fake_ad_data(10_000)
     # app.update_incorrect_values()
