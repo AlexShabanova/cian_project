@@ -1,5 +1,5 @@
-import os
 import random
+import time
 
 from application.datamodel.data_models import DealType, OfferType, Region, ObjectType, RoomType
 from application.db.database_manager import DatabaseManager
@@ -55,11 +55,11 @@ class Application:
                 print("С такими параметрами ничего не нашлось")
                 break
 
-            if 'captcha' in page_source:
+            while 'captcha' in page_source:
                 print("captcha")
-                os.system("shutdown /s /t 0")
-                # time.sleep(30)
-                # page_source = self.http_client.get_page_source(link)
+                # os.system("shutdown /s /t 0")
+                time.sleep(30)
+                page_source = self.http_client.get_page_source(link)
 
             links_from_page = MainPageParser.parse_links_from_main_page(page_source)
             links_from_db = self.database_manager.get_links_from_db()
