@@ -27,7 +27,7 @@ if __name__ == '__main__':
         room_type = filter[1]
         min_price = filter[2][0]
         max_price = filter[2][1]
-        if object_type == ObjectType.secondary_build and room_type == RoomType.room6 and min_price >= 1_000_001:
+        if object_type == ObjectType.secondary_build and room_type == RoomType.room9 and min_price >= 7_000_001:
             test.append(filter)
             print(index)
             db_manager.insert_processed_filter(index)
@@ -37,8 +37,8 @@ if __name__ == '__main__':
         offer_type=OfferType.flat,
         region=Region.moscow,
         object_type=ObjectType.secondary_build,
-        room=RoomType.room6,
-        minprice=1_000_001,
+        room=RoomType.room9,
+        minprice=7_000_001,
         maxprice=1_000_000_000
     )
     app.get_links_from_page()
