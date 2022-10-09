@@ -21,49 +21,49 @@ if __name__ == '__main__':
     all_parameters = list(product(*variants))
 
     # Для пропуска заведомо пустых страниц
-    # test = []
-    # for index, filter in enumerate(all_parameters):
-    #     object_type = filter[0]
-    #     room_type = filter[1]
-    #     min_price = filter[2][0]
-    #     max_price = filter[2][1]
-    #     if object_type == ObjectType.secondary_build and room_type == RoomType.room4 and min_price >= 92_000_001:
-    #         test.append(filter)
-    #         print(index)
-    #         db_manager.insert_processed_filter(index)
-    # app = Application(
-    #     deal_type=DealType.sale,
-    #     db_manager=db_manager,
-    #     offer_type=OfferType.flat,
-    #     region=Region.moscow,
-    #     object_type=ObjectType.secondary_build,
-    #     room=RoomType.room4,
-    #     minprice=92_000_001,
-    #     maxprice=1_000_000_000
-    # )
-    # app.get_links_from_page()
+    test = []
+    for index, filter in enumerate(all_parameters):
+        object_type = filter[0]
+        room_type = filter[1]
+        min_price = filter[2][0]
+        max_price = filter[2][1]
+        if object_type == ObjectType.secondary_build and room_type == RoomType.room6 and min_price >= 1_000_001:
+            test.append(filter)
+            print(index)
+            db_manager.insert_processed_filter(index)
+    app = Application(
+        deal_type=DealType.sale,
+        db_manager=db_manager,
+        offer_type=OfferType.flat,
+        region=Region.moscow,
+        object_type=ObjectType.secondary_build,
+        room=RoomType.room6,
+        minprice=1_000_001,
+        maxprice=1_000_000_000
+    )
+    app.get_links_from_page()
 
-    app: Application
-    for filter_index, parameters in enumerate(all_parameters):
-        if filter_index in processed_filters:
-            continue
-        object_type = parameters[0]
-        room_type = parameters[1]
-        min_price = parameters[2][0]
-        max_price = parameters[2][1]
-        app = Application(
-            deal_type=DealType.sale,
-            db_manager=db_manager,
-            offer_type=OfferType.flat,
-            region=Region.moscow,
-            object_type=object_type,
-            room=room_type,
-            minprice=min_price,
-            maxprice=max_price
-        )
-        app.get_links_from_page()
-        db_manager.insert_processed_filter(filter_index)
-        print(f'Закончили получать ссылки по фильтру №{filter_index}: {parameters}')
+    # app: Application
+    # for filter_index, parameters in enumerate(all_parameters):
+    #     if filter_index in processed_filters:
+    #         continue
+    #     object_type = parameters[0]
+    #     room_type = parameters[1]
+    #     min_price = parameters[2][0]
+    #     max_price = parameters[2][1]
+    #     app = Application(
+    #         deal_type=DealType.sale,
+    #         db_manager=db_manager,
+    #         offer_type=OfferType.flat,
+    #         region=Region.moscow,
+    #         object_type=object_type,
+    #         room=room_type,
+    #         minprice=min_price,
+    #         maxprice=max_price
+    #     )
+    #     app.get_links_from_page()
+    #     db_manager.insert_processed_filter(filter_index)
+    #     print(f'Закончили получать ссылки по фильтру №{filter_index}: {parameters}')
 
     # app.get_ad_data_from_all_links()
     # app.generate_fake_ad_data(10_000)
