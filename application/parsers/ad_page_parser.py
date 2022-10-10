@@ -14,6 +14,7 @@ class AdPageParser:
 
     def __init__(self, page_source: str):
         self.soup = BeautifulSoup(page_source, 'lxml')
+        self.page_source = page_source
 
     def get_titles(self) -> Tuple[str, Any]:
         title_row = self.soup.find('meta', {'property': 'og:title'}).get('content')
@@ -363,3 +364,10 @@ class AdPageParser:
                                         'class': 'a10a3f92e9--description-text--YNzWU'}).text
         except Exception as err:
             pass
+
+    def is_ad_suspicious(self) -> int:
+        """Проверка, содержит ли объявление маркировку об ошибках (подозрительное объявление)"""
+        if 'В объявлениях этого агента встречаются ошибки' in self.page_source:
+            return 1
+        else:
+            return 0

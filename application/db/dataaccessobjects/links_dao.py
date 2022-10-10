@@ -38,9 +38,9 @@ class LinksDao:
         cursor.close()
 
     @staticmethod
-    def select_all_links(db: Connection) -> List[str]:
+    def select_all_unprocessed_links(db: Connection) -> List[str]:
         """Запрос на вывод всех ссылок из БД"""
-        query = """SELECT link FROM links"""
+        query = """SELECT link FROM links WHERE is_processed = 0"""
         cursor = db.cursor()
         cursor.execute(query)
         links_list_of_tuples = cursor.fetchall()

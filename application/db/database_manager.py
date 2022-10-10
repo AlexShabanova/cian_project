@@ -24,16 +24,16 @@ class DatabaseManager:
         """Данные по сссылке скачаны"""
         LinksDao.set_link_processed(self.__db, link)
 
-    def get_links_from_db(self) -> List[str]:
-        """Получение всех ссылок из БД"""
-        return LinksDao.select_all_links(self.__db)
+    def get_unprocessed_links_from_db(self) -> List[str]:
+        """Получение всех необработанных ссылок из БД"""
+        return LinksDao.select_all_unprocessed_links(self.__db)
 
     def insert_ad_data(self, link, flat_type, rooms, price, sale_type, mortgage, area,
                        living_area, kitchen_area, floor, floors, build_year, address, district, metro_station, seller,
                        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                        finished_shell_condition, house_type, house_class, building_number, parking, elevators,
                        housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
-                       description_text):
+                       description_text, is_suspicious):
         """Сохранение данных одного объявления"""
         AdDataDao.insert_ad_data(self.__db, link, flat_type, rooms, price, sale_type, mortgage, area,
                                  living_area, kitchen_area, floor, floors, build_year, address, district, metro_station,
@@ -42,7 +42,7 @@ class DatabaseManager:
                                  finished_shell_condition, house_type, house_class, building_number, parking, elevators,
                                  housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal,
                                  gas_supply,
-                                 description_text)
+                                 description_text, is_suspicious)
 
     def update_incorrect_columns(self):
         AdDataDao.change_column_values(self.__db)

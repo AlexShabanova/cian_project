@@ -62,7 +62,7 @@ class Application:
                 page_source = self.http_client.get_page_source(link)
 
             links_from_page = MainPageParser.parse_links_from_main_page(page_source)
-            links_from_db = self.database_manager.get_links_from_db()
+            links_from_db = self.database_manager.get_unprocessed_links_from_db()
             print(f"страница = {page_number}, количество ссылок на странице = {len(links_from_page)}, в БД = {len(links_from_db)}")
 
             check = all(link in links_from_db for link in links_from_page)
@@ -76,7 +76,7 @@ class Application:
 
     def get_ad_data_from_all_links(self):
         """Получение данных со страницы объявления"""
-        all_links = self.database_manager.get_links_from_db()
+        all_links = self.database_manager.get_unprocessed_links_from_db()
         links_len = len(all_links)
         for i, link in enumerate(all_links):
             try:
@@ -103,6 +103,8 @@ class Application:
                 house_info = ad_parser.get_house_info(house_info_names_values)
 
                 description_text = ad_parser.get_description_text()
+
+                is_suspicious = ad_parser.is_ad_suspicious()
 
                 build_year_resolved = None
                 if flat_summary_info.built_year is not None:
@@ -139,7 +141,8 @@ class Application:
                                                      unsafe_house=house_info.unsafe_house,
                                                      garbage_disposal=house_info.garbage_disposal,
                                                      gas_supply=house_info.gas_supply,
-                                                     description_text=description_text)
+                                                     description_text=description_text,
+                                                     is_suspicious=is_suspicious)
                 self.database_manager.set_link_processed(link)
             except Exception as err:
                 print(f"Ошибка в get_ad_data_from_all_links(), {err}")

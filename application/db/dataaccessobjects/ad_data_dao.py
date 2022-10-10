@@ -45,7 +45,8 @@ class AdDataDao:
             unsafe_house TEXT,
             garbage_disposal TEXT,
             gas_supply TEXT,
-            description_text TEXT
+            description_text TEXT,
+            is_suspicious INTEGER
         );
         """  # Запрос на создание таблицы
         cursor = db.cursor()
@@ -59,10 +60,10 @@ class AdDataDao:
                        housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view,
                        finished_shell_condition, house_type, house_class, building_number, parking, elevators,
                        housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply,
-                       description_text):
+                       description_text, is_suspicious):
         """Заполнение таблицы"""
         cursor = db.cursor()
-        cursor.execute("""INSERT INTO ad_data (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text))
+        cursor.execute("""INSERT INTO ad_data (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text, is_suspicious) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (link, flat_type, rooms, price, sale_type, mortgage, area, living_area, kitchen_area, floor, floors, built_year, address, district, metro_station, seller, housing_type, planning, ceiling_height, bathroom, balcony_loggia, repair, view, finished_shell_condition, house_type, house_class, building_number, parking, elevators, housing_line, floor_type, entrance_number, heating, unsafe_house, garbage_disposal, gas_supply, description_text, is_suspicious))
         db.commit()
         cursor.close()
 
