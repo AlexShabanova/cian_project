@@ -82,6 +82,11 @@ class Application:
             try:
                 print(f"Текущая ссылка: {link}, {i + 1} из {links_len}")
                 page_source = self.http_client.get_page_source(link)
+                while 'captcha' in page_source and '/recaptcha' not in page_source:
+                    print("captcha")
+                    # os.system("shutdown /s /t 0")
+                    time.sleep(30)
+                    page_source = self.http_client.get_page_source(link)
                 ad_parser = AdPageParser(page_source)
                 titles = ad_parser.get_titles()
                 flat_type = ad_parser.get_flat_type(titles)
