@@ -236,7 +236,7 @@ class Application:
 
     def parsing_ad_multiprocessing(self):
         links = self.database_manager.get_unprocessed_links_from_db()
-        with Pool(2) as pars:
+        with Pool(3) as pars:
             pars.map(self.get_info_from_one_link, links)
 
 
