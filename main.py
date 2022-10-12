@@ -73,6 +73,5 @@ if __name__ == '__main__':
         minprice=0,
         maxprice=0
     )
-    app.get_ad_data_from_all_links()
-    # app.generate_fake_ad_data(10_000)
-    # app.update_incorrect_values()
+    # app.get_ad_data_from_all_links()
+    app.parsing_ad_multiprocessing()
