@@ -56,12 +56,12 @@ class Application:
                    # f"&sort=creation_date_desc"  # сортировка объявлений "сначала новые"
             page_source = self.http_client.get_page_source(link)
 
-            if 'По такому запросу объявления еще не разместили' in page_source:
+            if "По такому запросу объявления еще не разместили" in page_source:
                 print("С такими параметрами ничего не нашлось")
                 break
 
             while 'captcha' in page_source:
-                print("captcha")
+                print('captcha')
                 # os.system("shutdown /s /t 0")
                 time.sleep(30)
                 page_source = self.http_client.get_page_source(link)
@@ -88,7 +88,7 @@ class Application:
                 print(f"Текущая ссылка: {link}, {i + 1} из {links_len}")
                 page_source = self.http_client.get_page_source(link)
                 while 'captcha' in page_source and '/recaptcha' not in page_source:
-                    print("captcha")
+                    print('captcha')
                     # os.system("shutdown /s /t 0")
                     time.sleep(30)
                     page_source = self.http_client.get_page_source(link)
@@ -165,7 +165,7 @@ class Application:
             print(f"Обрабатывается ссылка {link} в потоке {thread_id}")
             page_source = self.http_client_for_thread[thread_id].get_page_source(link)
             while 'captcha' in page_source and '/recaptcha' not in page_source:
-                print("captcha")
+                print('captcha')
                 # os.system("shutdown /s /t 0")
                 time.sleep(30)
                 page_source = self.http_client_for_thread[thread_id].get_page_source(link)
@@ -236,7 +236,7 @@ class Application:
 
     def parsing_ad_multiprocessing(self):
         links = self.database_manager.get_unprocessed_links_from_db()
-        with Pool(3) as pars:
+        with Pool(2) as pars:
             pars.map(self.get_info_from_one_link, links)
 
 

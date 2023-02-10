@@ -23,7 +23,7 @@ class AdPageParser:
         return title, ad_title
 
     def get_flat_type(self, titles: Tuple[str, Any]) -> str:
-        """Получение типа: квартира или апартаменты"""
+        """Получение типа недвижимости: квартира или апартаменты"""
         flat_type = None
         try:
             if 'апартаменты' in titles[0]:
