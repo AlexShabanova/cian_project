@@ -284,6 +284,10 @@ cython_debug/
 .history
 .ionide
 
+# .db and .pkl - model related huge files
+.db
+.pkl
+
 # Support for Project snippet scope
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode
