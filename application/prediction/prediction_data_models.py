@@ -54,7 +54,7 @@ class District(Enum):
     YVAO = 'ЮВАО'
     ZAO = 'ЗАО'
     SVAO = 'СВАО'
-    VAO = 'ИАО'
+    VAO = 'ВАО'
     YZAO = 'ЮЗАО'
     SZAO = 'СЗАО'
     CAO = 'ЦАО'
@@ -150,7 +150,6 @@ class Parking(Enum):
     underground_separate_multilevel = 'подземная, отдельная многоуровневая'
     separate_multilevel_guest = 'отдельная многоуровневая, гостевая'
     underground_separate_multilevel_guest = 'подземная, отдельная многоуровневая, гостевая'
-    missing = 'пропущено'
 
 
 class Heating(Enum):
