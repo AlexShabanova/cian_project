@@ -1,6 +1,12 @@
 import tkinter
+from tkinter import END
 
 import customtkinter
+
+from application.prediction.prediction_data_models import InteriorDesign, HouseType, Bathroom, \
+    Seller, Parking, Heating, CeilingHeight, District, BuiltYear, SaleType, Rooms, FlatType, Mortgage, SuspiciousFlat, \
+    HousingType
+from application.prediction.prediction_for_new_data import predict_price_for_new_data
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -30,31 +36,33 @@ class GUIApp(customtkinter.CTk):
         self.frame_1 = customtkinter.CTkFrame(self)
         self.frame_1.grid(row=0, column=0, rowspan=2, sticky="nsew")
         # self.frame_1.grid_rowconfigure(3, weight=1)
-        self.radio_var_flat_type = tkinter.StringVar(value=0)
+
+        # FlatType
+        self.radio_var_flat_type = tkinter.StringVar(value="квартира")
         self.flat_type_label = customtkinter.CTkLabel(self.frame_1, text="Тип недвижимости:",
                                                       font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.flat_type_label.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="w")
         self.radio_button_1 = customtkinter.CTkRadioButton(master=self.frame_1, text="квартира",
                                                            variable=self.radio_var_flat_type,
-                                                           value=1, font=("Roboto", 12))
+                                                           value="квартира", font=("Roboto", 12))
         self.radio_button_1.grid(row=1, column=0, pady=10, padx=20, sticky="w")
-        self.radio_button_2 = customtkinter.CTkRadioButton(master=self.frame_1, text="аппартаменты",
+        self.radio_button_2 = customtkinter.CTkRadioButton(master=self.frame_1, text="апартаменты",
                                                            variable=self.radio_var_flat_type,
-                                                           value=2, font=("Roboto", 12))
+                                                           value="апартаменты", font=("Roboto", 12))
         self.radio_button_2.grid(row=2, column=0, pady=10, padx=20, sticky="w")
-
         self.radio_var_housing_type = tkinter.StringVar(value=0)
         self.housing_type_label = customtkinter.CTkLabel(self.frame_1, text="Тип жилья:",
                                                          font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.housing_type_label.grid(row=3, column=0, padx=20, pady=(20, 10), sticky="w")
         self.radio_button_3 = customtkinter.CTkRadioButton(master=self.frame_1, text="вторичное",
                                                            variable=self.radio_var_housing_type,
-                                                           value=1, font=("Roboto", 14))
+                                                           value="вторичное", font=("Roboto", 14))
         self.radio_button_3.grid(row=4, column=0, pady=10, padx=20, sticky="w")
         self.radio_button_4 = customtkinter.CTkRadioButton(master=self.frame_1, text="новостройка",
                                                            variable=self.radio_var_housing_type,
-                                                           value=2, font=("Roboto", 14))
+                                                           value="новостройка", font=("Roboto", 14))
         self.radio_button_4.grid(row=5, column=0, pady=10, padx=20, sticky="w")
+        self.radio_var_housing_type.set("вторичное")
 
         self.checkbox_mortgage = customtkinter.CTkCheckBox(master=self.frame_1, text="Ипотека",
                                                            font=customtkinter.CTkFont(size=14, weight="bold"))
@@ -64,8 +72,7 @@ class GUIApp(customtkinter.CTk):
                                                       font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.sale_type_label.grid(row=7, column=0, padx=20, pady=(20, 5), sticky="w")
         self.option_menu_sale_type = customtkinter.CTkOptionMenu(self.frame_1, dynamic_resizing=False, width=200,
-                                                                 values=["свободная продажа", "альтернатива",
-                                                                         "долевое участие (214-фз)"])
+                                                                 values=[e.value for e in SaleType])
         self.option_menu_sale_type.grid(row=8, column=0, padx=20, pady=(5, 10))
         self.option_menu_sale_type.set("свободная продажа")
 
@@ -73,77 +80,56 @@ class GUIApp(customtkinter.CTk):
                                                    font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.seller_label.grid(row=9, column=0, padx=20, pady=(20, 5), sticky="w")
         self.option_menu_seller = customtkinter.CTkOptionMenu(self.frame_1, dynamic_resizing=False, width=200,
-                                                              values=["агентство", "частный риелтор",
-                                                                      "застройщик", "консультант", "собственник",
-                                                                      "не указано"])
+                                                              values=[e.value for e in Seller])
         self.option_menu_seller.grid(row=10, column=0, padx=20, pady=(5, 10))
         self.option_menu_seller.set("не указано")
 
         # create second frame with widgets
         self.frame_2 = customtkinter.CTkFrame(self, width=300)  # width=100
         self.frame_2.grid(row=0, column=1, rowspan=2, sticky="nsew")
-        self.seller_label = customtkinter.CTkLabel(self.frame_2, text="Комнатность:",
-                                                   font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.seller_label.grid(row=1, column=1, padx=20, pady=(20, 5), sticky="w")
-        self.option_menu_seller = customtkinter.CTkOptionMenu(self.frame_2, dynamic_resizing=False, width=200,
-                                                              values=["1-комнатная", "2-комнатная",
-                                                                      "3-комнатная", "4-комнатная", "5-комнатная",
-                                                                      "6-комнатная", "студия", "свободная планировка"])
-        self.option_menu_seller.grid(row=2, column=1, padx=20, pady=(5, 10), sticky="w")
-
+        self.rooms_label = customtkinter.CTkLabel(self.frame_2, text="Комнатность:",
+                                                  font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
+        self.rooms_label.grid(row=1, column=1, padx=20, pady=(20, 5), sticky="w")
+        self.option_menu_rooms = customtkinter.CTkOptionMenu(self.frame_2, dynamic_resizing=False, width=200,
+                                                             values=["-1", "0", "1", "2", "3", "4", "5", "6"])
+        self.option_menu_rooms.grid(row=2, column=1, padx=20, pady=(5, 5), sticky="w")
+        self.rooms_comment_label = customtkinter.CTkLabel(self.frame_2,
+                                                          text="-1: свободная планировка\n 0: квартира-студия",
+                                                          font=customtkinter.CTkFont(size=12),
+                                                          anchor="w", justify="left")
+        self.rooms_comment_label.grid(row=3, column=1, padx=20, pady=(10, 5), sticky="nw")
         self.area_label = customtkinter.CTkLabel(self.frame_2, text="Общая площадь:",
                                                  font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.area_label.grid(row=3, column=1, padx=20, pady=(15, 5), sticky="w")
-        self.entry_area = customtkinter.CTkEntry(self.frame_2, width=150, placeholder_text="м\u00B2")
-        self.entry_area.grid(row=4, column=1, padx=(20, 0), pady=(10, 20), sticky="w")
+        self.area_label.grid(row=4, column=1, padx=20, pady=(15, 5), sticky="w")
+        self.entry_area = customtkinter.CTkEntry(self.frame_2, width=150, placeholder_text="м\u00B2  (через . )")
+        self.entry_area.grid(row=5, column=1, padx=(20, 0), pady=(10, 20), sticky="w")
 
         self.kitchen_area_label = customtkinter.CTkLabel(self.frame_2, text="Площадь кухни:",
                                                          font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.kitchen_area_label.grid(row=5, column=1, padx=20, pady=(10, 5), sticky="w")
-        self.entry_kitchen_area = customtkinter.CTkEntry(self.frame_2, width=150, placeholder_text="м\u00B2")
-        self.entry_kitchen_area.grid(row=6, column=1, padx=(20, 0), pady=(10, 20), sticky="w")
+        self.kitchen_area_label.grid(row=6, column=1, padx=20, pady=(10, 5), sticky="w")
+        self.entry_kitchen_area = customtkinter.CTkEntry(self.frame_2, width=150,
+                                                         placeholder_text="м\u00B2  (через . )")
+        self.entry_kitchen_area.grid(row=7, column=1, padx=(20, 0), pady=(10, 20), sticky="w")
 
         self.living_area_label = customtkinter.CTkLabel(self.frame_2, text="Жилая площадь:",
                                                         font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.living_area_label.grid(row=7, column=1, padx=20, pady=(10, 5), sticky="w")
-        self.entry_living_area = customtkinter.CTkEntry(self.frame_2, width=150, placeholder_text="м\u00B2")
-        self.entry_living_area.grid(row=8, column=1, padx=(20, 0), pady=(5, 20), sticky="w")
+        self.living_area_label.grid(row=8, column=1, padx=20, pady=(10, 5), sticky="w")
+        self.entry_living_area = customtkinter.CTkEntry(self.frame_2, width=150, placeholder_text="м\u00B2  (через . )")
+        self.entry_living_area.grid(row=9, column=1, padx=(20, 0), pady=(5, 20), sticky="w")
         self.bathroom_label = customtkinter.CTkLabel(self.frame_2, text="Санузел:",
                                                      font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.bathroom_label.grid(row=9, column=1, padx=20, pady=(10, 5), sticky="w")
+        self.bathroom_label.grid(row=10, column=1, padx=20, pady=(10, 5), sticky="w")
         self.option_menu_bathroom = customtkinter.CTkOptionMenu(self.frame_2, dynamic_resizing=False, width=230,
-                                                                values=["1 совмещенный", "1 раздельный",
-                                                                        "1 совмещенный, 1 раздельный",
-                                                                        "1 совмещенный, 2 раздельных",
-                                                                        "1 совмещенный, 3 раздельных",
-                                                                        "1 совмещенный, 4 раздельных", "2 совмещенных",
-                                                                        "2 раздельных", "2 совмещенных, 1 раздельный",
-                                                                        "2 совмещенных, 2 раздельных",
-                                                                        "2 совмещенных, 3 раздельных",
-                                                                        "2 совмещенных, 4 раздельных", "3 совмещенных",
-                                                                        "3 раздельных",
-                                                                        "3 совмещенных, 1 раздельный",
-                                                                        "3 совмещенных, 2 раздельных",
-                                                                        "3 совмещенных, 3 раздельных",
-                                                                        "3 совмещенных, 4 раздельных", "4 совмещенных",
-                                                                        "4 раздельных", "4 совмещенных, 1 раздельный",
-                                                                        "4 совмещенных, 2 раздельных",
-                                                                        "4 совмещенных, 3 раздельных",
-                                                                        "4 совмещенных, 4 раздельных", "пропущено"])
-        self.option_menu_bathroom.grid(row=10, column=1, padx=20, pady=(5, 10))
+                                                                values=[e.value for e in Bathroom])
+        self.option_menu_bathroom.grid(row=11, column=1, padx=20, pady=(5, 10))
         self.option_menu_bathroom.set("пропущено")
         self.bathroom_label = customtkinter.CTkLabel(self.frame_2, text="Ремонт:",
                                                      font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
-        self.bathroom_label.grid(row=11, column=1, padx=20, pady=(15, 5), sticky="w")
-        self.option_menu_bathroom = customtkinter.CTkOptionMenu(self.frame_2, dynamic_resizing=False, width=230,
-                                                                values=["косметический",
-                                                                        "без ремонта",
-                                                                        "евроремонт",
-                                                                        "чистовой",
-                                                                        "дизайнерский",
-                                                                        "черновой", "пропущено"])
-        self.option_menu_bathroom.grid(row=12, column=1, padx=20, pady=(5, 10))
-        self.option_menu_bathroom.set("пропущено")
+        self.bathroom_label.grid(row=12, column=1, padx=20, pady=(15, 5), sticky="w")
+        self.option_menu_interior_design = customtkinter.CTkOptionMenu(self.frame_2, dynamic_resizing=False, width=230,
+                                                                       values=[e.value for e in InteriorDesign])
+        self.option_menu_interior_design.grid(row=13, column=1, padx=20, pady=(5, 10))
+        self.option_menu_interior_design.set("пропущено")
 
         # create third frame with widgets
         self.frame_3 = customtkinter.CTkFrame(self, width=250)
@@ -167,7 +153,7 @@ class GUIApp(customtkinter.CTk):
                                                            font=customtkinter.CTkFont(size=16, weight="bold"),
                                                            anchor="w")
         self.ceiling_height_label.grid(row=7, column=2, padx=20, pady=(15, 5), sticky="w")
-        self.entry_ceiling_height = customtkinter.CTkEntry(self.frame_3, width=150, placeholder_text="м")
+        self.entry_ceiling_height = customtkinter.CTkEntry(self.frame_3, width=150, placeholder_text="м  (через . )")
         self.entry_ceiling_height.grid(row=8, column=2, padx=(20, 0), pady=(10, 20), sticky="w")
 
         # create fourth frame with widgets
@@ -177,15 +163,14 @@ class GUIApp(customtkinter.CTk):
                                                      font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.district_label.grid(row=2, column=2, padx=20, pady=(15, 5), sticky="w")
         self.option_menu_district = customtkinter.CTkOptionMenu(self.frame_4, dynamic_resizing=False, width=150,
-                                                                values=["ЗелАО", "ТАО (Троицкий)", "САО", "ЮАО", "ЮВАО",
-                                                                        "ЗАО", "СВАО", "ВАО", "ЮЗАО", "СЗАО", "ЦАО"])
+                                                                values=[e.value for e in District])
         self.option_menu_district.grid(row=3, column=2, padx=20, pady=(5, 10), sticky="w")
         self.metro_label = customtkinter.CTkLabel(self.frame_4, text="Метро:",
                                                   font=customtkinter.CTkFont(size=16, weight="bold"),
                                                   anchor="w")
         self.metro_label.grid(row=4, column=2, padx=20, pady=(15, 5), sticky="w")
-        self.entry_ceiling_metro = customtkinter.CTkEntry(self.frame_4, width=200, placeholder_text=" с заглавной буквы")
-        self.entry_ceiling_metro.grid(row=5, column=2, padx=(20, 10), pady=(10, 20), sticky="w")
+        self.entry_metro = customtkinter.CTkEntry(self.frame_4, width=200, placeholder_text=" с заглавной буквы")
+        self.entry_metro.grid(row=5, column=2, padx=(20, 10), pady=(10, 20), sticky="w")
 
         # create fifth frame with widgets
         self.frame_5 = customtkinter.CTkFrame(self)
@@ -195,33 +180,21 @@ class GUIApp(customtkinter.CTk):
                                                        font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.house_type_label.grid(row=1, column=3, padx=20, pady=(20, 5), sticky="w")
         self.option_menu_house_type = customtkinter.CTkOptionMenu(self.frame_5, dynamic_resizing=False, width=200,
-                                                                  values=["кирпичный", "блочный", "монолитно-кирпичный",
-                                                                          "панельный", "монолитный",
-                                                                          "панельный, монолитный",
-                                                                          "панельный, кирпичный", "пропущено"])
+                                                                  values=[e.value for e in HouseType])
         self.option_menu_house_type.grid(row=2, column=3, padx=20, pady=(5, 15))
         self.option_menu_house_type.set("пропущено")
         self.parking_label = customtkinter.CTkLabel(self.frame_5, text="Парковка:",
                                                     font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.parking_label.grid(row=3, column=3, padx=20, pady=(20, 10), sticky="w")
         self.option_menu_parking = customtkinter.CTkOptionMenu(self.frame_5, dynamic_resizing=False, width=200,
-                                                               values=["стихийная", "наземная", "подземная",
-                                                                       "гостевая", "открытая",
-                                                                       "многоуровневая", "на крыше",
-                                                                       "отдельная многоуровневая",
-                                                                       "подземная, гостевая",
-                                                                       "подземная, отдельная многоуровневая",
-                                                                       "отдельная многоуровневая, гостевая",
-                                                                       "подземная, отдельная многоуровневая, гостевая"])
+                                                               values=[e.value for e in Parking])
         self.option_menu_parking.grid(row=4, column=3, padx=20, pady=(5, 20))
         self.option_menu_parking.set("стихийная")
         self.heating_label = customtkinter.CTkLabel(self.frame_5, text="Отопление:",
                                                     font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
         self.heating_label.grid(row=5, column=3, padx=20, pady=(15, 5), sticky="w")
         self.option_menu_heating = customtkinter.CTkOptionMenu(self.frame_5, dynamic_resizing=False, width=200,
-                                                               values=["центральное", "котел/квартирное отопление",
-                                                                       "индивидуальный тепловой пункт",
-                                                                       "автономная котельная"])
+                                                               values=[e.value for e in Heating])
         self.option_menu_heating.grid(row=6, column=3, padx=20, pady=(5, 20))
         self.option_menu_heating.set("центральное")
         self.checkbox_suspicious = customtkinter.CTkCheckBox(master=self.frame_5, text="Подозрительная\nквартира",
@@ -242,22 +215,95 @@ class GUIApp(customtkinter.CTk):
                                                                        command=self.change_appearance_mode_event)
         self.appearance_mode_option_menu.grid(row=4, column=0, padx=(20, 20), pady=(10, 10), sticky="s")
 
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="Стоимость квартиры")
+        # create main entry
+        self.entry = customtkinter.CTkEntry(self, font=customtkinter.CTkFont(size=16, weight="bold"), )
         self.entry.grid(row=2, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
+        # create main button
         self.main_button_1 = customtkinter.CTkButton(master=self, text="РАССЧИТАТЬ", fg_color="transparent",
                                                      border_width=2,
                                                      font=customtkinter.CTkFont(size=14, weight="bold"),
                                                      text_color=("gray10", "#DCE4EE"), command=self.calculate_price)
         self.main_button_1.grid(row=2, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
-        # create main button
+
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
 
     def calculate_price(self):
-        ...
+        built_year = BuiltYear()
+        built_year.year = int(self.entry_built_year.get())
+
+        ceiling_height = CeilingHeight()
+        ceiling_height.height = (float(self.entry_ceiling_height.get()))
+
+        flat_type = FlatType(self.radio_var_flat_type.get())
+        rooms = Rooms(int(self.option_menu_rooms.get()))
+        sale_type = SaleType(self.option_menu_sale_type.get())
+        mortgage = Mortgage(self.checkbox_mortgage.get())
+        area = float(self.entry_area.get())
+        living_area = float(self.entry_living_area.get())
+        kitchen_area = float(self.entry_kitchen_area.get())
+        floor = int(self.entry_floor.get())
+        floors = int(self.entry_floors.get())
+        district = District(self.option_menu_district.get())
+        heating = Heating(self.option_menu_heating.get())
+        parking = Parking(self.option_menu_parking.get())
+        metro_station = self.entry_metro.get()
+        seller = Seller(self.option_menu_seller.get())
+        housing_type = HousingType(self.radio_var_housing_type.get())
+        bathroom = Bathroom(self.option_menu_bathroom.get())
+        house_type = HouseType(self.option_menu_house_type.get())
+        is_suspicious = SuspiciousFlat(self.checkbox_suspicious.get())
+        interior_design = InteriorDesign(self.option_menu_interior_design.get())
+        print(flat_type,
+              rooms,
+              sale_type,
+              mortgage,
+              area,
+              living_area,
+              kitchen_area,
+              floor,
+              floors,
+              built_year,
+              district,
+              ceiling_height,
+              heating,
+              parking,
+              metro_station,
+              seller,
+              housing_type,
+              bathroom,
+              house_type,
+              is_suspicious,
+              interior_design)
+
+        self.entry.configure(state='normal')
+        self.entry.delete(0, END)
+        result = predict_price_for_new_data(flat_type,
+                                            rooms,
+                                            sale_type,
+                                            mortgage,
+                                            area,
+                                            living_area,
+                                            kitchen_area,
+                                            floor,
+                                            floors,
+                                            built_year,
+                                            district,
+                                            ceiling_height,
+                                            heating,
+                                            parking,
+                                            metro_station,
+                                            seller,
+                                            housing_type,
+                                            bathroom,
+                                            house_type,
+                                            is_suspicious,
+                                            interior_design)
+        self.entry.insert(0, result)
+        self.entry.configure(state='disabled')
 
 
 # TODO нужно обновлять состояние main entry, чтобы туда ничего нельзя было записать

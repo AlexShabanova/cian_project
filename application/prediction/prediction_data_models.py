@@ -3,7 +3,7 @@ from enum import Enum
 
 class FlatType(Enum):
     flat = 'квартира'
-    apartaments = 'апартаменты'
+    apartments = 'апартаменты'
 
 
 class Rooms(Enum):
@@ -31,7 +31,7 @@ class Mortgage(Enum):
 class BuiltYear(object):
 
     def __init__(self) -> None:
-        self.__year = None
+        self.__year = 0
 
     @property
     def year(self):
@@ -79,7 +79,7 @@ class HousingType(Enum):
 
 class CeilingHeight:
     def __init__(self) -> None:
-        self.__height = None
+        self.__height = 0
 
     @property
     def height(self):
@@ -90,8 +90,8 @@ class CeilingHeight:
         if 25 <= height <= 40:
             self.__height = round(height / 10, 2)
         elif height < 2.4 or 12 < height < 25:
-            self.__height = None
-        elif height < 240:
+            self.__height = 2.6
+        elif height > 240:
             self.__height = round(height / 100, 2)
         else:
             self.__height = height
