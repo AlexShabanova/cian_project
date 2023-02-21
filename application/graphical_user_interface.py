@@ -13,7 +13,6 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard),
 
 
 class GUIApp(customtkinter.CTk):
-    # TODO настроить размеры экрана
     WIDTH = 1000
     HEIGHT = 700
 
@@ -174,7 +173,6 @@ class GUIApp(customtkinter.CTk):
 
         # create fifth frame with widgets
         self.frame_5 = customtkinter.CTkFrame(self)
-        # TODO пока rowspan=2, но еслм добавлять кнопку "очистить фильтр", то нужно заменить на rowspan=1 и добавить фрейм
         self.frame_5.grid(row=0, column=3, rowspan=2, sticky="nsew")
         self.house_type_label = customtkinter.CTkLabel(self.frame_5, text="Тип дома:",
                                                        font=customtkinter.CTkFont(size=16, weight="bold"), anchor="w")
@@ -304,14 +302,6 @@ class GUIApp(customtkinter.CTk):
                                             interior_design)
         self.entry.insert(0, result)
         self.entry.configure(state='disabled')
-
-
-# TODO нужно обновлять состояние main entry, чтобы туда ничего нельзя было записать
-#  уже в функции calculate_price
-#  text.configure(state='normal')
-# text.insert('end', 'Some Text')
-# text.configure(state='disabled')
-
 
 app = GUIApp()
 app.mainloop()
