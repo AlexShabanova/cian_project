@@ -58,6 +58,7 @@ class District(Enum):
     YZAO = 'ЮЗАО'
     SZAO = 'СЗАО'
     CAO = 'ЦАО'
+    NAO = 'НАО (Новомосковский)'
 
 
 class Seller(Enum):
