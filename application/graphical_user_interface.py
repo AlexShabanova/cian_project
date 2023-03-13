@@ -13,8 +13,8 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard),
 
 
 class GUIApp(customtkinter.CTk):
-    WIDTH = 1000
-    HEIGHT = 700
+    WIDTH = 1100
+    HEIGHT = 800
 
     def __init__(self):
         super().__init__()

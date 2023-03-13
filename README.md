@@ -98,7 +98,7 @@ MAE и наибольшее значение R<sup>2</sup> имеет один �
 создан [графический интерфейс пользователя](application/graphical_user_interface.py) с использованием библиотеки
 customtkinter.
 
-![](ui_demo/ui_demo_1.gif)
-![](ui_demo/ui_demo_2.gif)
-![](ui_demo/ui_demo_3.gif)
-![](ui_demo/ui_demo_4.gif)
+![](ui_demo/ui_demo_1_1.gif)
+![](ui_demo/ui_demo_2_1.gif)
+![](ui_demo/ui_demo_3_1.gif)
+![](ui_demo/ui_demo_4_1.gif)
